@@ -14,16 +14,47 @@ sys_fork(void)
 }
 
 int
-sys_exit(void)
+sys_exit(void) 
 {
-  exit();
+  int status;
+
+  if(argint(0, &status) < 0)
+    return -1;
+
+  exit(status); /* Deniz exit() --> int */
+
   return 0;  // not reached
 }
 
 int
-sys_wait(void)
+sys_wait(void) /* Deniz (void) --> int */
 {
-  return wait();
+  int *status;
+
+  if(argptr(0, (void*)&status, sizeof(status)) < 0)
+    return -1;
+
+  return wait(status); /* Deniz (void) --> int */
+}
+
+int
+sys_waitpid(void) /* Deniz (void) --> int */
+{ 
+  int *status;
+  int pid, opt;
+  
+  if(argint(0, &pid) < 0){
+    return -1;
+  }
+
+  if (argptr(1, (void*)&status, sizeof(status)) < 0)
+    return -1;
+
+  if(argint(2, &opt) < 0){
+    return -1;
+  }
+
+  return waitpid(pid, status, opt); /* Deniz */
 }
 
 int
@@ -88,4 +119,11 @@ sys_uptime(void)
   xticks = ticks;
   release(&tickslock);
   return xticks;
+}
+
+int sys_greeting(void)
+{
+  greeting();
+
+  return 0;
 }
